@@ -26,44 +26,81 @@
                 <div class="card">
                     <div class="card-body">
                         <h5>Find Your Professor</h5>
-                        <form>
+                        <form id="searchForm">
                             <div class="mb-3">
-                                <input type="text" class="form-control" placeholder="Professor name">
+                                <input type="text" class="form-control" id="searchInput" placeholder="Professor name">
                             </div>
                             <div class="mb-3">
-                                <select class="form-select">
-                                    <option selected>Select University</option>
-                                    <option value="du">University of Dhaka</option>
-                                    <option value="buet">BUET</option>
-                                    <option value="nsu">North South University</option>
-                                    <option value="iub">Independent University</option>
-                                    <option value="brac">BRAC University</option>
+                                <select class="form-select" id="universityFilter">
+                                    <option value="">All Universities</option>
+                                    <option value="University of Dhaka">University of Dhaka</option>
+                                    <option value="BUET">BUET</option>
+                                    <option value="North South University">North South University</option>
+                                    <option value="Independent University">Independent University</option>
+                                    <option value="BRAC University">BRAC University</option>
+                                    <option value="American International University">American International University</option>
+                                    <option value="East West University">East West University</option>
+                                    <option value="Chittagong University">Chittagong University</option>
+                                    <option value="Rajshahi University">Rajshahi University</option>
+                                    <option value="Jahangirnagar University">Jahangirnagar University</option>
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <select class="form-select">
-                                    <option selected>Select Department</option>
-                                    <option value="cse">Computer Science</option>
-                                    <option value="eee">Electrical Engineering</option>
-                                    <option value="english">English</option>
-                                    <option value="math">Mathematics</option>
-                                    <option value="physics">Physics</option>
+                                <select class="form-select" id="departmentFilter">
+                                    <option value="">All Departments</option>
+                                    <option value="Computer Science">Computer Science</option>
+                                    <option value="Electrical Engineering">Electrical Engineering</option>
+                                    <option value="English">English</option>
+                                    <option value="Mathematics">Mathematics</option>
+                                    <option value="Physics">Physics</option>
+                                    <option value="Chemistry">Chemistry</option>
+                                    <option value="Economics">Economics</option>
+                                    <option value="Business Administration">Business Administration</option>
                                 </select>
                             </div>
                             <button type="submit" class="btn btn-primary">Search</button>
+                            <button type="button" class="btn btn-secondary ms-2" id="clearFilters">Clear</button>
                         </form>
                     </div>
                 </div>
+
+                <!-- Search Results -->
+                <div id="searchResults" class="mt-4">
+                    <div id="loadingSpinner" class="text-center d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                    <div id="noResults" class="alert alert-info d-none">
+                        No professors found matching your search criteria.
+                    </div>
+                    <div id="resultsContainer">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
             </div>
+
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
                         <h5>Popular Universities</h5>
                         <ul class="list-unstyled">
-                            <li><a href="#" class="text-decoration-none">University of Dhaka</a></li>
-                            <li><a href="#" class="text-decoration-none">BUET</a></li>
-                            <li><a href="#" class="text-decoration-none">North South University</a></li>
-                            <li><a href="#" class="text-decoration-none">BRAC University</a></li>
+                            <li><a href="#" class="text-decoration-none university-link" data-university="University of Dhaka">University of Dhaka</a></li>
+                            <li><a href="#" class="text-decoration-none university-link" data-university="BUET">BUET</a></li>
+                            <li><a href="#" class="text-decoration-none university-link" data-university="North South University">North South University</a></li>
+                            <li><a href="#" class="text-decoration-none university-link" data-university="BRAC University">BRAC University</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h5>Search Tips</h5>
+                        <ul class="small">
+                            <li>Try searching by first name or last name</li>
+                            <li>Use filters to narrow down results</li>
+                            <li>Check different spelling variations</li>
+                            <li>Can't find your professor? <a href="submit-rating.html">Rate them first!</a></li>
                         </ul>
                     </div>
                 </div>
@@ -71,7 +108,169 @@
         </div>
     </div>
 
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, getDocs, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCpvdxMmmnKOlC1pF7Rp203iW0fkjScWLw",
+            authDomain: "hybrid-hawk-464508-d8.firebaseapp.com",
+            databaseURL: "https://hybrid-hawk-464508-d8-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "hybrid-hawk-464508-d8",
+            storageBucket: "hybrid-hawk-464508-d8.firebasestorage.app",
+            messagingSenderId: "637297244580",
+            appId: "1:637297244580:web:5fd3b770f066b7bf536931",
+            measurementId: "G-Q4WSNSF6PZ"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Search functionality
+        document.getElementById('searchForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await performSearch();
+        });
+
+        document.getElementById('clearFilters').addEventListener('click', function() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('universityFilter').value = '';
+            document.getElementById('departmentFilter').value = '';
+            document.getElementById('resultsContainer').innerHTML = '';
+            document.getElementById('noResults').classList.add('d-none');
+        });
+
+        // University quick links
+        document.querySelectorAll('.university-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const university = this.getAttribute('data-university');
+                document.getElementById('universityFilter').value = university;
+                performSearch();
+            });
+        });
+
+        async function performSearch() {
+            const searchInput = document.getElementById('searchInput').value.trim().toLowerCase();
+            const universityFilter = document.getElementById('universityFilter').value;
+            const departmentFilter = document.getElementById('departmentFilter').value;
+
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const noResults = document.getElementById('noResults');
+            const resultsContainer = document.getElementById('resultsContainer');
+
+            // Show loading
+            loadingSpinner.classList.remove('d-none');
+            noResults.classList.add('d-none');
+            resultsContainer.innerHTML = '';
+
+            try {
+                // Build query
+                let q = collection(db, 'professors');
+                
+                // Apply filters
+                if (universityFilter) {
+                    q = query(q, where('university', '==', universityFilter));
+                }
+                if (departmentFilter) {
+                    q = query(q, where('department', '==', departmentFilter));
+                }
+
+                // Order by rating
+                q = query(q, orderBy('averageRating', 'desc'));
+
+                const querySnapshot = await getDocs(q);
+                let results = [];
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    // Filter by name if search input is provided
+                    if (!searchInput || data.name.toLowerCase().includes(searchInput)) {
+                        results.push({
+                            id: doc.id,
+                            ...data
+                        });
+                    }
+                });
+
+                displayResults(results);
+
+            } catch (error) {
+                console.error('Error searching professors:', error);
+                resultsContainer.innerHTML = '<div class="alert alert-danger">Error loading results. Please try again.</div>';
+            } finally {
+                loadingSpinner.classList.add('d-none');
+            }
+        }
+
+        function displayResults(results) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            const noResults = document.getElementById('noResults');
+
+            if (results.length === 0) {
+                noResults.classList.remove('d-none');
+                return;
+            }
+
+            let html = '<h4>Search Results</h4>';
+            results.forEach(professor => {
+                html += `
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h5 class="card-title mb-1">${professor.name}</h5>
+                                    <p class="text-muted mb-1">
+                                        <strong>${professor.university}</strong> • ${professor.department}
+                                    </p>
+                                    <small class="text-muted">${professor.reviewCount} review${professor.reviewCount !== 1 ? 's' : ''}</small>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <div class="d-flex align-items-center justify-content-end">
+                                        <div class="text-center">
+                                            <div class="rating-badge bg-${getRatingColor(professor.averageRating)} text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 50px; height: 50px; font-size: 1.2rem; font-weight: bold;">
+                                                ${professor.averageRating.toFixed(1)}
+                                            </div>
+                                            <div class="small text-muted mt-1">Overall</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button class="btn btn-outline-primary btn-sm" onclick="viewProfessor('${professor.id}')">
+                                    View Reviews
+                                </button>
+                                <a href="submit-rating.html" class="btn btn-outline-success btn-sm ms-2">
+                                    Rate This Professor
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            resultsContainer.innerHTML = html;
+        }
+
+        function getRatingColor(rating) {
+            if (rating >= 4.5) return 'success';
+            if (rating >= 3.5) return 'warning';
+            if (rating >= 2.5) return 'info';
+            return 'danger';
+        }
+
+        // Global function for view professor (will be implemented later)
+        window.viewProfessor = function(professorId) {
+            alert(`Professor profile page coming soon! ID: ${professorId}`);
+        };
+
+        // Load initial data (all professors)
+        performSearch();
+    </script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script src="js/app.js"></script>
 </body>
 </html>
