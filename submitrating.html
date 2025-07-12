@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rate a Teacher - Teacher Rating BD</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">TeacherRating BD</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="index.html">Home</a>
+                <a class="nav-link" href="search.html">Search</a>
+                <a class="nav-link active" href="submit-rating.html">Rate a Teacher</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h2>Rate Your Teacher</h2>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <form>
+                            <div class="mb-3">
+                                <label class="form-label">Teacher Name</label>
+                                <input type="text" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">University</label>
+                                <select class="form-select" required>
+                                    <option selected>Select University</option>
+                                    <option value="du">University of Dhaka</option>
+                                    <option value="buet">BUET</option>
+                                    <option value="nsu">North South University</option>
+                                    <option value="iub">Independent University</option>
+                                    <option value="brac">BRAC University</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Department</label>
+                                <input type="text" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Course</label>
+                                <input type="text" class="form-control" placeholder="e.g., CSE101, ENG102">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Overall Rating</label>
+                                <select class="form-select" required>
+                                    <option selected>Select Rating</option>
+                                    <option value="5">5 - Excellent</option>
+                                    <option value="4">4 - Good</option>
+                                    <option value="3">3 - Average</option>
+                                    <option value="2">2 - Poor</option>
+                                    <option value="1">1 - Very Poor</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Difficulty Level</label>
+                                <select class="form-select" required>
+                                    <option selected>Select Difficulty</option>
+                                    <option value="5">5 - Very Hard</option>
+                                    <option value="4">4 - Hard</option>
+                                    <option value="3">3 - Moderate</option>
+                                    <option value="2">2 - Easy</option>
+                                    <option value="1">1 - Very Easy</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Review</label>
+                                <textarea class="form-control" rows="4" placeholder="Share your experience..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success">Submit Rating</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
